@@ -1,6 +1,6 @@
 
 
-
+module.exports = {
   currentTime() {
     let dateShow = new Date();
     let dateSay = new Date();
@@ -39,5 +39,9 @@
     let day = new Date();
     const week = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
     return week[day.getDay()]
+  }
+
+  timerGivenNone() {
+
   }
 }

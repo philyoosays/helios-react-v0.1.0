@@ -3,7 +3,7 @@ import React from 'react';
 import { amAble } from './lib/phraseLibrary';
 import DateAndTime from './modules/DateAndTime';
 
-const { currentTime } = DateAndTime;
+const { currentTime, timerGivenNone } = DateAndTime;
 
 export default class DumbBrain extends React.Component {
   constructor(props) {
@@ -11,6 +11,7 @@ export default class DumbBrain extends React.Component {
     this.state = {
       toSpeak: '',
       forceSpeak: false,
+      external: '',
     }
   }
 
@@ -23,11 +24,10 @@ export default class DumbBrain extends React.Component {
       console.log('this is running');
       this.processing(this.props.input);
     }
-
-    if()
   }
 
   output(message, toSpeak) {
+    const { display } = this.props;
     if(toSpeak !== undefined) {
       toSpeak = message;
     }
@@ -35,8 +35,8 @@ export default class DumbBrain extends React.Component {
     display('helios', message)
   }
 
-  processing(input) {
-    const { display, speak, setAppState, speakFrequency } = this.props;
+  async processing(input) {
+    const { setAppState, speakFrequency, speak } = this.props;
 
     let replyShow;
     let timeObj;
@@ -46,6 +46,9 @@ export default class DumbBrain extends React.Component {
     console.log('received', input);
 
     switch(input) {
+      ////////////////////
+      // CONFIGURATION
+      ////////////////////
       case 'switch to configuration mode':
       case 'switch to config mode':
       case 'switch to configuration':
@@ -57,6 +60,10 @@ export default class DumbBrain extends React.Component {
         this.output('Entering configuration mode');
         setAppState('brain', 'config')
         break;
+
+      ////////////////////////////
+      // DATE AND TIME MODULE
+      ////////////////////////////
       case 'tell me the time':
       case 'tell me what time it is':
       case 'can you tell me the time':
@@ -72,8 +79,21 @@ export default class DumbBrain extends React.Component {
       case 'show me what time it is':
         timeObj = currentTime();
         replyShow = `The current time is ${timeObj.timeShow}`;
-        output(replyShow, `The current time is ${timeObj.timeSay}`);
+        this.output(replyShow, `The current time is ${timeObj.timeSay}`);
         break;
+      case 'set a timer':
+      case 'set a timer for me':
+      case 'can you set a timer':
+      case 'can you set a timer for me':
+        let rand = Math.floor(Math.random() * amAble.length);
+        replyShow = amAble[rand];
+        replyShow += ' For how long should I set a timer for?';
+        this.output(replyShow)
+
+        break;
+      //////////////////////
+      // Home Utilities
+      //////////////////////
       case 'is my mother home':
       case 'is my mother home right now':
       case 'is my mom home':
@@ -94,22 +114,15 @@ export default class DumbBrain extends React.Component {
         .then(response => response.json())
           .then(data => {
             if(data === 'Yes') {
-              output('She is currently at home.', 'She is indeed, currently at home');
+              this.output('She is currently at home.', 'She is indeed, currently at home');
             } else {
-              output('She is currently not at home.', 'She currently is not in at the moment.');
+              this.output('She is currently not at home.', 'She currently is not in at the moment.');
             }
           })
         break;
-      case 'set a timer':
-      case 'set a timer for me':
-      case 'can you set a timer':
-      case 'can you set a timer for me':
-        let rand = Math.floor(Math.random() * amAble.length);
-        replyShow = amAble[rand];
-        display('helios', replyShow)
       default:
         replyShow = 'I\'m sorry but I didn\'t catch that. Could you please try again?';
-        output(replyShow)
+        this.output(replyShow)
         speak('I\'m sorry but I didn\'t catch that. Could you please try again?')
         break;
     }
