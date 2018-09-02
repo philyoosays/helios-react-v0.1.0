@@ -25,7 +25,7 @@ export default class DumbBrain extends React.Component {
 
     let replyShow;
     let timeObj;
-    input = input.split('please')
+    input = input.split('please').join('')
     console.log('received', input);
 
     switch(input) {
