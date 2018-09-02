@@ -1,55 +1,55 @@
 // Helios_Home_Assistant
 // v0.0.1
 
-var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
-var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
-var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+// var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+// var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+// var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
 
-let synth = window.speechSynthesis;
+// let synth = window.speechSynthesis;
 
-let recognition = new SpeechRecognition();
-let speechRecognitionList = new SpeechGrammarList();
+// let recognition = new SpeechRecognition();
+// let speechRecognitionList = new SpeechGrammarList();
 
-recognition.continuous = true;
-recognition.lang = 'en-US';
-recognition.interimResults = false;
-recognition.maxAlternatives = 5;
+// recognition.continuous = true;
+// recognition.lang = 'en-US';
+// recognition.interimResults = false;
+// recognition.maxAlternatives = 5;
 
-let statusLabel = document.querySelector('.state');
-let msgBox = document.querySelector('.messages');
-let startButton = document.querySelector('.start');
-let stopButton = document.querySelector('.stop');
+// let statusLabel = document.querySelector('.state');
+// let msgBox = document.querySelector('.messages');
+// let startButton = document.querySelector('.start');
+// let stopButton = document.querySelector('.stop');
 
-msgBox.scrollTop = msgBox.scrollHeight;
+// msgBox.scrollTop = msgBox.scrollHeight;
 
-const library = {
-  intent: {
-    'find me': 'request',
-    'help me': 'request',
-    'can you': 'request',
-    'i': 'statement',
-    'where': 'request',
-    'did you know': 'query',
-    'do you know': 'query',
-    'what': 'query',
-    'what\'s': 'query'
-  },
-  context: {
-    'my': 'phil',
-    'mom\'s': 'mother',
-    'mother\'s': 'mother',
-    'today': new Date(),
-    'tomorrow': getTomorrow(),
-  }
-}
+// const library = {
+//   intent: {
+//     'find me': 'request',
+//     'help me': 'request',
+//     'can you': 'request',
+//     'i': 'statement',
+//     'where': 'request',
+//     'did you know': 'query',
+//     'do you know': 'query',
+//     'what': 'query',
+//     'what\'s': 'query'
+//   },
+//   context: {
+//     'my': 'phil',
+//     'mom\'s': 'mother',
+//     'mother\'s': 'mother',
+//     'today': new Date(),
+//     'tomorrow': getTomorrow(),
+//   }
+// }
 
-const personalityGreeting = [
-  'Don\'t make a girl wait so long before you talk to her. Anyways. ', 'Oh hey there. ', 'Yes master. '
-]
+// const personalityGreeting = [
+//   'Don\'t make a girl wait so long before you talk to her. Anyways. ', 'Oh hey there. ', 'Yes master. '
+// ]
 
-const greetings = [
-  'How can I help you', 'How can I help you today', 'What may I help you with', 'What may I help you with today', 'How may I be of service to you?'
-]
+// const greetings = [
+//   'How can I help you', 'How can I help you today', 'What may I help you with', 'What may I help you with today', 'How may I be of service to you?'
+// ]
 
 function getTomorrow() {
   let date = new Date();
@@ -62,252 +62,252 @@ function getTomorrow() {
   return new Date(date.getFullYear(), date.getMonth(), day)
 }
 
-function addMessageToBox(type, message) {
-  if(type === 'helios') {
-    message = message + ' <<';
-  } else {
-    message = '>> ' + message;
-  }
-  let hr = document.createElement('hr');
-  let entry = document.createElement('p');
-  entry.classList.add(type);
-  entry.innerText = message;
-  msgBox.appendChild(entry);
-  msgBox.appendChild(hr);
-}
+// function addMessageToBox(type, message) {
+//   if(type === 'helios') {
+//     message = message + ' <<';
+//   } else {
+//     message = '>> ' + message;
+//   }
+//   let hr = document.createElement('hr');
+//   let entry = document.createElement('p');
+//   entry.classList.add(type);
+//   entry.innerText = message;
+//   msgBox.appendChild(entry);
+//   msgBox.appendChild(hr);
+// }
 
-function selectGreeting() {
-  let toSay = '';
-  let coinFlip = Math.random() > .5 ? true : false;
-  let randOne = Math.floor(Math.random() * personalityGreeting.length);
-  let randTwo = Math.floor(Math.random() * greetings.length);
-  if(coinFlip) {
-    toSay += personalityGreeting[randOne];
-  }
-  toSay += greetings[randTwo];
-  return toSay
-}
+// function selectGreeting() {
+//   let toSay = '';
+//   let coinFlip = Math.random() > .5 ? true : false;
+//   let randOne = Math.floor(Math.random() * personalityGreeting.length);
+//   let randTwo = Math.floor(Math.random() * greetings.length);
+//   if(coinFlip) {
+//     toSay += personalityGreeting[randOne];
+//   }
+//   toSay += greetings[randTwo];
+//   return toSay
+// }
 
-function speak(toSay, lang) {
-  let voices = synth.getVoices()
-  let sayThis = new SpeechSynthesisUtterance(toSay);
-  let name = 'Karen';
-  if(lang !== undefined) {
-    name = 'Yuna'
-  }
-  voices.forEach(d => {
-    if(d.name === name) {
-      sayThis.voice = d
-    }
-  })
-  sayThis.pitch = 1.2;
-  sayThis.rate = 1;
-  synth.speak(sayThis);
-}
+// function speak(toSay, lang) {
+//   let voices = synth.getVoices()
+//   let sayThis = new SpeechSynthesisUtterance(toSay);
+//   let name = 'Karen';
+//   if(lang !== undefined) {
+//     name = 'Yuna'
+//   }
+//   voices.forEach(d => {
+//     if(d.name === name) {
+//       sayThis.voice = d
+//     }
+//   })
+//   sayThis.pitch = 1.2;
+//   sayThis.rate = 1;
+//   synth.speak(sayThis);
+// }
 
-function activateListenMode(initial) {
-  console.log('starting')
-  if(initial === 'korean') {
-    recognition.abort()
-    recognition.lang = 'ko';
-  }
-  setTimeout(() => {
-    msgBox.style.transform = 'scaleX(1) scaleY(0)';
+// function activateListenMode(initial) {
+//   console.log('starting')
+//   if(initial === 'korean') {
+//     recognition.abort()
+//     recognition.lang = 'ko';
+//   }
+//   setTimeout(() => {
+//     msgBox.style.transform = 'scaleX(1) scaleY(0)';
 
-    setTimeout(() => {``
-      msgBox.style.transform = 'scaleX(1) scaleY(1)';
+//     setTimeout(() => {``
+//       msgBox.style.transform = 'scaleX(1) scaleY(1)';
 
-      setTimeout(() => {
-        localStorage.setItem('calledOn', true);
-        if(initial === 'korean') {
-          addMessageToBox('helios', '어떻게 도와 드릴까요?');
-          recognition.start();
-        } else {
-          let toSay = selectGreeting();
-          addMessageToBox('helios', toSay);
-          speak(toSay)
-        }
+//       setTimeout(() => {
+//         localStorage.setItem('calledOn', true);
+//         if(initial === 'korean') {
+//           addMessageToBox('helios', '어떻게 도와 드릴까요?');
+//           recognition.start();
+//         } else {
+//           let toSay = selectGreeting();
+//           addMessageToBox('helios', toSay);
+//           speak(toSay)
+//         }
 
-      }, 1250);
-    }, 1000);
-  });
-}
+//       }, 1250);
+//     }, 1000);
+//   });
+// }
 
-function deactivateListenMode() {
-  console.log('closing down');
-  setTimeout(() => {
-    msgBox.style.transform = 'scaleX(1) scaleY(0.1)';
+// function deactivateListenMode() {
+//   console.log('closing down');
+//   setTimeout(() => {
+//     msgBox.style.transform = 'scaleX(1) scaleY(0.1)';
 
-    setTimeout(() => {
-      msgBox.style.transform = 'scaleX(0) scaleY(0)';
-    }, 1000)
-  })
-  localStorage.removeItem('calledOn');
-  language = 'en-US';
-  while(msgBox.firstChild) {
-    msgBox.removeChild(msgBox.firstChild)
-  }
-}
+//     setTimeout(() => {
+//       msgBox.style.transform = 'scaleX(0) scaleY(0)';
+//     }, 1000)
+//   })
+//   localStorage.removeItem('calledOn');
+//   language = 'en-US';
+//   while(msgBox.firstChild) {
+//     msgBox.removeChild(msgBox.firstChild)
+//   }
+// }
 
-function shouldRestart() {
-  return localStorage.getItem('upState')
-}
+// function shouldRestart() {
+//   return localStorage.getItem('upState')
+// }
 
-function checkName(hashObj) {
-  const names = [
-    'helios', 'chileos', 'chelios', 'korean'
-  ];
-  let goodName = false;
-  for(let i = 0; i < names.length; i++) {
-    for(let key in hashObj) {
-      if(key.includes(names[i])) {
-        goodName = true;
-        localStorage.setItem('language', 'english')
-      }
-    }
-  }
+// function checkName(hashObj) {
+//   const names = [
+//     'helios', 'chileos', 'chelios', 'korean'
+//   ];
+//   let goodName = false;
+//   for(let i = 0; i < names.length; i++) {
+//     for(let key in hashObj) {
+//       if(key.includes(names[i])) {
+//         goodName = true;
+//         localStorage.setItem('language', 'english')
+//       }
+//     }
+//   }
 
-  if(goodName === true && hashObj['korean'] !== undefined) {
-    goodName = 'korean';
-    localStorage.setItem('language', 'korean')
-  }
-  console.log('goodName', goodName)
-  return goodName;
-}
+//   if(goodName === true && hashObj['korean'] !== undefined) {
+//     goodName = 'korean';
+//     localStorage.setItem('language', 'korean')
+//   }
+//   console.log('goodName', goodName)
+//   return goodName;
+// }
 
-function checkStopWord(hashObj) {
-  const stopWords = [
-    'stop listening', 'hard stop', 'shut down'
-  ];
-  let hardStop = false;
-  for(let i = 0; i < stopWords.length; i++) {
-    for(let key in hashObj) {
-      if(key.includes(stopWords[i])) {
-        hardStop = true;
-        localStorage.setItem('upState', false)
-      }
-    }
-  }
-  return hardStop;
-}
+// function checkStopWord(hashObj) {
+//   const stopWords = [
+//     'stop listening', 'hard stop', 'shut down'
+//   ];
+//   let hardStop = false;
+//   for(let i = 0; i < stopWords.length; i++) {
+//     for(let key in hashObj) {
+//       if(key.includes(stopWords[i])) {
+//         hardStop = true;
+//         localStorage.setItem('upState', false)
+//       }
+//     }
+//   }
+//   return hardStop;
+// }
 
-startButton.addEventListener('click', (e) => {
-  e.preventDefault();
-  // e.stopPropagation();
-  localStorage.clear();
-  localStorage.setItem('upState', true);
-  recognition.start();
-})
+// startButton.addEventListener('click', (e) => {
+//   e.preventDefault();
+//   // e.stopPropagation();
+//   localStorage.clear();
+//   localStorage.setItem('upState', true);
+//   recognition.start();
+// })
 
-stopButton.addEventListener('click', (e) => {
-  e.preventDefault();
-  // e.stopPropagation();
-  statusLabel.innerText = 'Status: stopped';
-  startButton.classList.remove('selected');
-  localStorage.removeItem('calledOn');
-  localStorage.setItem('upState', false)
-  deactivateListenMode();
-  recognition.abort();
-})
+// stopButton.addEventListener('click', (e) => {
+//   e.preventDefault();
+//   // e.stopPropagation();
+//   statusLabel.innerText = 'Status: stopped';
+//   startButton.classList.remove('selected');
+//   localStorage.removeItem('calledOn');
+//   localStorage.setItem('upState', false)
+//   deactivateListenMode();
+//   recognition.abort();
+// })
 
-recognition.onstart = () => {
-  statusLabel.innerText = 'Status: Ready';
-  startButton.classList.add('selected');
-  console.log('Recognition Start');
-}
+// recognition.onstart = () => {
+//   statusLabel.innerText = 'Status: Ready';
+//   startButton.classList.add('selected');
+//   console.log('Recognition Start');
+// }
 
-recognition.onaudiostart = (event) => {
-  statusLabel.innerText = 'Status: Listening';
-  console.log('Audio Start');
-}
+// recognition.onaudiostart = (event) => {
+//   statusLabel.innerText = 'Status: Listening';
+//   console.log('Audio Start');
+// }
 
-recognition.onsoundstart = () => {
-  statusLabel.innerText = 'Status: Detecting sound...';
-  console.log('Sound Start');
-}
+// recognition.onsoundstart = () => {
+//   statusLabel.innerText = 'Status: Detecting sound...';
+//   console.log('Sound Start');
+// }
 
-recognition.onspeechstart = () => {
-  statusLabel.innerText = 'Status: Detecting Speech...';
-  console.log('Speech Start');
-}
+// recognition.onspeechstart = () => {
+//   statusLabel.innerText = 'Status: Detecting Speech...';
+//   console.log('Speech Start');
+// }
 
-recognition.onaudioend = () => {
-  statusLabel.innerText = 'Status: Audio Ended';
-  // console.log('Audio ended');
-}
+// recognition.onaudioend = () => {
+//   statusLabel.innerText = 'Status: Audio Ended';
+//   // console.log('Audio ended');
+// }
 
-recognition.onsoundend = () => {
-  statusLabel.innerText = 'Status: Sound Ended';
-  // console.log('Sound ended');
-}
+// recognition.onsoundend = () => {
+//   statusLabel.innerText = 'Status: Sound Ended';
+//   // console.log('Sound ended');
+// }
 
-recognition.onspeechend = () => {
-  statusLabel.innerText = 'Status: Speech Ended';
-  // console.log('Speech ended');
-}
+// recognition.onspeechend = () => {
+//   statusLabel.innerText = 'Status: Speech Ended';
+//   // console.log('Speech ended');
+// }
 
-recognition.onerror = (event) => {
-  // console.log('Error', event.error)
-}
+// recognition.onerror = (event) => {
+//   // console.log('Error', event.error)
+// }
 
-recognition.onend = () => {
-  statusLabel.innerText = 'Status: Self End';
-  startButton.classList.remove('selected');
-  // console.log('Self end')
-  let language = localStorage.getItem('language')
-  if(localStorage.getItem('upState') === 'true' && language === 'english') {
-    console.log(localStorage.getItem('upState'))
-    recognition.start();
-  }
-}
+// recognition.onend = () => {
+//   statusLabel.innerText = 'Status: Self End';
+//   startButton.classList.remove('selected');
+//   // console.log('Self end')
+//   let language = localStorage.getItem('language')
+//   if(localStorage.getItem('upState') === 'true' && language === 'english') {
+//     console.log(localStorage.getItem('upState'))
+//     recognition.start();
+//   }
+// }
 
-recognition.onresult = (event) => {
-  let last = event.results.length - 1;
-  let resultsObj = event.results[last];
-  let resultsHash = {};
-  let finalHash = {};
-  let counter = 0;
-  for(let key in resultsObj) {
-    const transcript = resultsObj[key].transcript;
-    const confidence = resultsObj[key].confidence
-    resultsHash[transcript] = {
-      confidence: confidence,
-      index: counter
-    }
-    counter++;
-  }
+// recognition.onresult = (event) => {
+//   let last = event.results.length - 1;
+//   let resultsObj = event.results[last];
+//   let resultsHash = {};
+//   let finalHash = {};
+//   let counter = 0;
+//   for(let key in resultsObj) {
+//     const transcript = resultsObj[key].transcript;
+//     const confidence = resultsObj[key].confidence
+//     resultsHash[transcript] = {
+//       confidence: confidence,
+//       index: counter
+//     }
+//     counter++;
+//   }
 
-  for(let key in resultsHash) {
-    finalHash[key.toLowerCase().trim()] = resultsHash[key];
-  }
+//   for(let key in resultsHash) {
+//     finalHash[key.toLowerCase().trim()] = resultsHash[key];
+//   }
 
-  console.log(finalHash)
+//   console.log(finalHash)
 
-  const hardStop = checkStopWord(finalHash);
-  console.log(hardStop)
-  const wasICalled = checkName(finalHash);
-  console.log(wasICalled)
+//   const hardStop = checkStopWord(finalHash);
+//   console.log(hardStop)
+//   const wasICalled = checkName(finalHash);
+//   console.log(wasICalled)
 
-  let lang = localStorage.getItem('language')
-  if(hardStop) {
-    stopButton.click();
+//   let lang = localStorage.getItem('language')
+//   if(hardStop) {
+//     stopButton.click();
 
-  } else {
-    if(localStorage.getItem('calledOn') === 'true') {
-      // discovery(finalHash);
-      if(lang !== 'korean') {
-        dumbBrain(finalHash)
-      } else {
-        koreanDumbBrain(finalHash)
-      }
+//   } else {
+//     if(localStorage.getItem('calledOn') === 'true') {
+//       // discovery(finalHash);
+//       if(lang !== 'korean') {
+//         dumbBrain(finalHash)
+//       } else {
+//         koreanDumbBrain(finalHash)
+//       }
 
-    } else {
-      if(wasICalled) {
-        activateListenMode(wasICalled);
-      }
-    }
-  }
-}
+//     } else {
+//       if(wasICalled) {
+//         activateListenMode(wasICalled);
+//       }
+//     }
+//   }
+// }
 
 function dumbBrain(hash) {
   // hash = trimResults(hash);

@@ -17,11 +17,12 @@ class App extends React.Component {
       language: 'english',
       status: 'stopped',
       switch: false,
+      listenStop: false,
       dialogue: [],
       calledOn: false,
       msgBoxStyle: '',
       voice: 'Karen',
-      hash: undefined,
+      userSpeech: undefined,
       brain: 'dumb'
     }
   }
@@ -78,7 +79,8 @@ class App extends React.Component {
 
     recognition.onerror = (event) => {
       this.setState({ status: 'Error' });
-      console.log('Error', event.error)
+      this.addMessageToBox('helios', 'I have detected an error in speech recognition. I will display the details on the screen.');
+      this.addMessageToBox('helios', event.error);
     }
 
     recognition.onend = () => {
@@ -122,8 +124,10 @@ class App extends React.Component {
         this.setTheState('switch', false)
 
       } else {
-        if(this.state.calledOn === 'true') {
-          this.setTheState('hash', finalHash)
+        if(this.state.calledOn === true) {
+          let userSpeech = this.processHeard(finalHash)
+          this.addMessageToBox('user', userSpeech)
+          this.setState({ userSpeech })
 
         } else {
           if(wasICalled) {
@@ -165,6 +169,7 @@ class App extends React.Component {
     if(prevState.language !== this.state.language) {
       if(this.state.language === 'english') {
         this.setState({ currentListen: this.state.recognition })
+
       } else if(this.state.language === 'korean') {
         this.setState({ currentListen: this.state.korean })
       }
@@ -220,7 +225,6 @@ class App extends React.Component {
     }
 
     if(goodName === true && hashObj['korean'] !== undefined) {
-      goodName = 'korean';
       this.setTheState('language', 'korean')
     }
     console.log('goodName', goodName)
@@ -251,6 +255,19 @@ class App extends React.Component {
       }, 1000)
     })
     this.reset();
+  }
+
+  processHeard(hash) {
+    let max = 0.0;
+    let text;
+    for(let key in hashObj) {
+      if(hashObj[key].confidence > max) {
+        let max = hashObj[key].confidence;
+        let text = key;
+      }
+    }
+    text = text.split('.').join().trim();
+    return text;
   }
 
   speak(toSay, lang) {
@@ -317,6 +334,7 @@ class App extends React.Component {
       language: 'english',
       status: 'stopped',
       switch: false,
+      listenStop: false,
       dialogue: [],
       calledOn: false,
       msgBoxStyle: '',
@@ -359,7 +377,7 @@ class App extends React.Component {
           mouth={ this.state.synth }
           language={ this.state.language }
           shortMemory={ this.state.dialogue }
-          hash={ this.state.hash }
+          input={ this.state.userSpeech }
           speak={ this.speak }
           setAppState={ this.setTheState }
         />
