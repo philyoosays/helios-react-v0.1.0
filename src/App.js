@@ -84,7 +84,7 @@ class App extends React.Component {
     recognition.onend = () => {
       this.setState({ status: 'Self end' });
       // console.log('Self end')
-      if(this.state.switch === true && this.state.language === 'english') {
+      if(this.state.switch === true) {
         this.deactivateListenMode();
         this.state.currentListen.start();
       }
@@ -114,6 +114,7 @@ class App extends React.Component {
 
       const hardStop = this.checkStopWord(finalHash);
       console.log(hardStop)
+
       const wasICalled = this.checkName(finalHash);
       console.log(wasICalled)
 
@@ -126,7 +127,7 @@ class App extends React.Component {
 
         } else {
           if(wasICalled) {
-            this.activateListenMode(wasICalled);
+            this.activateListenMode();
           }
         }
       }
@@ -175,7 +176,9 @@ class App extends React.Component {
     if(this.state.language === 'korean') {
       this.state.currentListen.abort();
       await this.setTheState('currentListen', this.state.korean)
-      this.state.currentListen.start();
+      setTimeout(() => {
+        this.state.currentListen.start();
+      }, 1750)
     }
     setTimeout(async () => {
       await this.setTheState('msgBoxStyle', { transform: 'scaleX(1) scaleY(0)' })
@@ -212,7 +215,6 @@ class App extends React.Component {
       for(let key in hashObj) {
         if(key.includes(names[i])) {
           goodName = true;
-          localStorage.setItem('language', 'english')
         }
       }
     }
@@ -232,7 +234,6 @@ class App extends React.Component {
       for(let key in hashObj) {
         if(key.includes(stopWords[i])) {
           hardStop = true;
-          this.setTheState('switch', false)
         }
       }
     }
