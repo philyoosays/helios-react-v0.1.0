@@ -19,7 +19,7 @@ class App extends React.Component {
       listenStop: false,
       dialogue: [],
       calledOn: false,
-      msgBoxStyle: '',
+      msgBoxStyle: { transform: 'scaleX(0) scaleY(0)' },
       voice: 'Karen',
       userSpeech: undefined,
       brain: 'dumb'
@@ -81,21 +81,23 @@ class App extends React.Component {
     }
 
     recognition.onerror = (event) => {
-      this.setState({ status: 'Error' });
-      this.addMessageToBox('helios', 'I have detected an error in speech recognition. I will display the details on the screen.');
-      this.addMessageToBox('helios', event.error);
+      if(event.error !== 'abort') {
+        this.setState({ status: 'Error' });
+        this.addMessageToBox('helios', 'I have detected an error in speech recognition. I will display the details on the screen.');
+        this.addMessageToBox('helios', event.error);
+      }
     }
 
     recognition.onend = () => {
       this.setState({ status: 'Self end' });
-      // console.log('Self end')
+      console.log('Self end', this.state.switch)
       if(this.state.switch === true) {
         this.deactivateListenMode();
         this.state.currentListen.start();
       }
     }
 
-    recognition.onresult = (event) => {
+    recognition.onresult = async (event) => {
       let last = event.results.length - 1;
       let resultsObj = event.results[last];
       let resultsHash = {};
@@ -123,20 +125,27 @@ class App extends React.Component {
       const wasICalled = this.checkName(finalHash);
       console.log(wasICalled)
 
-      if(hardStop) {
-        this.setTheState('switch', false)
+      if(!this.state.listenStop) {
 
-      } else {
-        if(this.state.calledOn === true) {
-          let userSpeech = this.processHeard(finalHash)
-          this.addMessageToBox('user', userSpeech)
-          this.setState({ userSpeech })
+        if(hardStop) {
+          await this.setTheState('switch', false)
 
         } else {
-          if(wasICalled) {
-            this.activateListenMode();
+          if(this.state.calledOn === true) {
+            let userSpeech = this.processHeard(finalHash)
+            this.addMessageToBox('user', userSpeech)
+            this.setState({ userSpeech })
+
+          } else {
+            if(wasICalled) {
+              console.log('activating')
+              this.activateListenMode();
+            }
           }
         }
+
+      } else {
+        this.setState({ listenStop: false })
       }
     }
 
@@ -197,11 +206,11 @@ class App extends React.Component {
         setTimeout(async () => {
           await this.setTheState('calledOn', true)
           if(this.state.language === 'korean') {
-            this.addMessageToBox(this ,'helios', '어떻게 도와 드릴까요?');
+            this.addMessageToBox('helios', '어떻게 도와 드릴까요?');
             this.state.currentListen.start();
           } else {
             let toSay = this.selectGreeting();
-            this.addMessageToBox(this, 'helios', toSay);
+            this.addMessageToBox('helios', toSay);
             this.speak(this, toSay)
           }
 
@@ -248,27 +257,34 @@ class App extends React.Component {
   }
 
   deactivateListenMode() {
-    console.log('closing down');
-    setTimeout(async () => {
-      await this.setTheState('msgBoxStyle', { transform: 'scaleX(1) scaleY(0.1)' })
-
+    if(this.state.msgBoxStyle.transform === 'scaleX(1) scaleY(1)') {
+      console.log('closing down');
       setTimeout(async () => {
-        await this.setTheState('msgBoxStyle', { transform: 'scaleX(0) scaleY(0)' })
+        await this.setTheState('msgBoxStyle', { transform: 'scaleX(1) scaleY(0.1)' })
 
-      }, 1000)
-    })
+        setTimeout(async () => {
+          await this.setTheState('msgBoxStyle', { transform: 'scaleX(0) scaleY(0)' })
+
+        }, 1000)
+      })
+    }
     this.reset();
   }
 
-  processHeard(hash) {
+  processHeard(hashObj) {
+    while(hashObj[undefined] !== undefined) {
+      delete hashObj[undefined];
+    }
+
     let max = 0.0;
     let text;
     for(let key in hashObj) {
       if(hashObj[key].confidence > max) {
-        let max = hashObj[key].confidence;
-        let text = key;
+        max = hashObj[key].confidence;
+        text = key.toString();
       }
     }
+
     text = text.split('.').join().trim();
     return text;
   }
@@ -306,7 +322,8 @@ class App extends React.Component {
     await this.setState( newState );
   }
 
-  speak(toSay, lang) {
+  async speak(toSay, lang) {
+    await this.setState({ listenStop: true })
     let voices = this.state.synth.getVoices();
     let sayThis = new SpeechSynthesisUtterance(toSay);
     let name = this.state.voice;
@@ -336,12 +353,13 @@ class App extends React.Component {
     this.setState({
       language: 'english',
       status: 'stopped',
-      switch: false,
+      switch: true,
       listenStop: false,
       dialogue: [],
       calledOn: false,
-      msgBoxStyle: '',
+      msgBoxStyle: {},
       voice: 'Karen',
+      userSpeech: '',
     })
   }
 
@@ -349,14 +367,14 @@ class App extends React.Component {
     const buttonClass = this.state.switch ? 'start selected' : 'start';
     const messages = this.state.dialogue.map((element, index) => {
       let message;
-      if(element.speaker === 'helios') {
+      if(element.who === 'helios') {
         message = element.message + ' <<';
       } else {
         message = '>> ' + element.message;
       }
       return(
-        <React.Fragment>
-          <p className={ element.speaker }>{ message }</p>
+        <React.Fragment key={ index }>
+          <p className={ element.who }>{ message }</p>
           <hr />
         </React.Fragment>
       );
@@ -367,7 +385,7 @@ class App extends React.Component {
         <h1 className="title">H E L I O S</h1>
         <p className="desc">Home v 0.1.0</p>
         <h1 className="state">STATUS: { this.state.status }</h1>
-        <div className="messages">
+        <div className="messages" style={ this.state.msgBoxStyle }>
           { messages }
         </div>
         <div className="buttoncontainer">

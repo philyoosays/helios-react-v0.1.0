@@ -1,8 +1,9 @@
 module.exports = {
   currentTime() {
-    let date = new Date();
-    let timeShow = date.toLocaleTimeString('en-US');
-    let timeSay = date.toLocaleTimeString().split(' ')
+    let dateShow = new Date();
+    let dateSay = new Date();
+    let timeShow = dateShow.toLocaleTimeString('en-US');
+    let timeSay = dateSay.toLocaleTimeString().split(' ')
 
     timeSay[0] = timeSay[0].slice(0, -3)
     timeSay = timeSay.join(':').split(':')
@@ -16,7 +17,7 @@ module.exports = {
       toSay.push(timeSay[1])
     }
     toSay.push(timeSay[2])
-    timeShow = toSay.join(' ')
+    timeSay = toSay.join(' ')
     let obj = { timeShow, timeSay };
     return obj;
   },

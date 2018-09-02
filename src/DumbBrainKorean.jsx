@@ -1,6 +1,8 @@
-import React from 'react';
+// import React from 'react';
 
 import DateAndTime from './modules/DateAndTime';
+
+const { currentTime, } = DateAndTime;
 
 export default function koreanDumbBrain(props) {
   const { ears, mouth, language, shortMemory, input, display, speak, setAppState } = props;

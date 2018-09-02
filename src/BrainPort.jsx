@@ -1,6 +1,7 @@
 import React from 'react';
 
 import DumbBrain from './DumbBrain';
+import DumbBrainKorean from './DumbBrainKorean';
 /*
   Brain gets these props
   ======================
@@ -15,7 +16,7 @@ import DumbBrain from './DumbBrain';
   setAppState={ this.setTheState }
 */
 
-export default function Brain(props) {
+export default function BrainPort(props) {
   let toLoad;
   if(props.brain === 'dumb' && props.language === 'english') {
     toLoad = <DumbBrain
@@ -41,5 +42,5 @@ export default function Brain(props) {
               />
   }
 
-  return(null);
+  return( toLoad );
 }
