@@ -15,15 +15,15 @@ The purpose of the Base Component (BC) (App.jsx), is to provide and manage verba
 ### Start Button Click
   Sets the switch state to true, then componentDidUpdate will trigger start or SR. Helios will then begin listening.
 
-  Helios is given a range of 5 possible word matches to what it hears in this initial state. These are packaged up and labeled hashObj. The key of the hashObj is what the SR process thinks you said, and the value is the confidence value. Helios listens for one of three things. Its name, the word "_korean_", or a stop phrase in this order.
+  Helios is given a range of 5 possible word matches to what it hears in this initial state. These are packaged up and labeled hashObj. The key of the hashObj is what the SR process thinks you said, and the value is the confidence value. Helios listens for one of three things. Its name, the word "_korean_", or a stop phrase in this order.  
   
-  -Stop Phrase
+  -Stop Phrase  
       When one of hard-coded phrases are heard, it sets the switch state to false. Then componentDidUpdate will trigger a reset of variable state and abort the SR. As switch is set to false, this will shut the system down.
 
-  -Its name
+  -Its name  
       When it hears its name, it opens the dialogue box signifying that Helios is now active. The calledOn state is used to represent that acknowledgement is no longer necessary.
-      
-  -"_Korean_**"
+
+  -"_Korean_**"  
       When it hears the word "_korean_", it treats it like hearing its name, as well as setting language state to 'korean'. When the dialogue box opens, it loads the korean SR instance.
 
 ### Stop Button Click
