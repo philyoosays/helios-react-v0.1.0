@@ -1,4 +1,6 @@
-module.exports = {
+
+
+
   currentTime() {
     let dateShow = new Date();
     let dateSay = new Date();
@@ -31,5 +33,11 @@ module.exports = {
       day++;
     }
     return new Date(date.getFullYear(), date.getMonth(), day)
+  },
+
+  getTodayDay() {
+    let day = new Date();
+    const week = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+    return week[day.getDay()]
   }
 }

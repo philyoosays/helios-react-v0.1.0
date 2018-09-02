@@ -47,11 +47,19 @@ export default class DumbBrainConfig extends React.Component {
       case 'turn need acknowledge back off':
         await setAppState('needAcknowledge', false)
         break;
-
+      case 'i want to change your voice':
+      case 'I want you to change your voice':
+      case 'change your voice':
+      case 'change your voice for me':
+      case '':
       default:
         replyShow = 'I\'m sorry but I didn\'t you. Could you please try again?';
         display('helios', replyShow)
         break;
     }
+  }
+
+  render() {
+    return( null );
   }
 }

@@ -1,4 +1,4 @@
-// import React from 'react';
+import React from 'react';
 
 import DateAndTime from './modules/DateAndTime';
 
@@ -23,4 +23,5 @@ export default function koreanDumbBrain(props) {
       speak(replyShow, 'korean');
       break;
   }
+  return( null );
 }

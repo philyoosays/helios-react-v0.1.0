@@ -1,7 +1,7 @@
 import React from 'react';
 
 import BrainPort from './BrainPort';
-import { greetings, personalityGreeting } from './lib/greetings';
+import { greetings, personalityGreeting, signOff } from './lib/phraseLibrary';
 
 import './App.css';
 
@@ -19,11 +19,14 @@ class App extends React.Component {
       listenStop: false,
       dialogue: [],
       calledOn: false,
-      needAcknowledge: true,
+      motorMouth: false,
       msgBoxStyle: { transform: 'scaleX(0) scaleY(0)' },
       voice: 'Karen',
       userSpeech: undefined,
-      brain: 'dumb'
+      brain: 'dumb',
+      speakPitch: 1.2,
+      speakRate: 1,
+      speakFrequency: 1
     }
 
     this.addMessageToBox = this.addMessageToBox.bind(this);
@@ -126,27 +129,42 @@ class App extends React.Component {
       const wasICalled = this.checkName(finalHash);
       console.log(wasICalled)
 
-      if(!this.state.listenStop) {
+      if(!synth.speaking) {
 
         if(hardStop) {
-          await this.setTheState('switch', false)
+          console.log('hard stop')
+          await this.setState({ switch: false })
+          const coinFlip = Math.random() > .5 ? true : false;
+          const final = coinFlip ? 'Shutting down.' : 'Signing off.';
+          let theSignOff = 'Acknowledging hard stop and performing shut down procedures.'
+          await this.speak(theSignOff);
+          setTimeout(() => {
+            this.speak(final);
+          }, 3000)
 
         } else {
           if(this.state.calledOn === true || this.state.needAcknowledge === false) {
             let userSpeech = this.processHeard(finalHash)
             this.addMessageToBox('user', userSpeech)
-            this.setState({ userSpeech })
+            await this.setState({ userSpeech })
 
           } else {
             if(wasICalled) {
               console.log('activating')
+              if(this.state.language === 'korean') {
+                recognition.abort();
+                this.setState({ currentListen: this.state.korean })
+                setTimeout(() => {
+                  this.state.currentListen.start();
+                }, 1750)
+              }
               this.activateListenMode();
             }
           }
         }
 
       } else {
-        this.setState({ listenStop: false })
+        console.log('Speech catured while I was talking', finalHash)
       }
     }
 
@@ -161,6 +179,7 @@ class App extends React.Component {
     // SWITCH
     //////////////////
     if(prevState.switch !== this.state.switch) {
+      console.log('switch', this.state.switch)
       if(this.state.switch) {
         this.startListening();
       } else {
@@ -191,13 +210,6 @@ class App extends React.Component {
 
   async activateListenMode() {
     console.log('starting')
-    if(this.state.language === 'korean') {
-      this.state.currentListen.abort();
-      await this.setTheState('currentListen', this.state.korean)
-      setTimeout(() => {
-        this.state.currentListen.start();
-      }, 1750)
-    }
     setTimeout(async () => {
       await this.setTheState('msgBoxStyle', { transform: 'scaleX(1) scaleY(0)' })
 
@@ -211,8 +223,9 @@ class App extends React.Component {
             this.state.currentListen.start();
           } else {
             let toSay = this.selectGreeting();
+            console.log(typeof toSay)
             this.addMessageToBox('helios', toSay);
-            this.speak(this, toSay)
+            this.speak(toSay)
           }
 
         }, 1250);
@@ -324,7 +337,7 @@ class App extends React.Component {
   }
 
   async speak(toSay, lang) {
-    await this.setState({ listenStop: true })
+    // await this.setState({ listenStop: true })
     let voices = this.state.synth.getVoices();
     let sayThis = new SpeechSynthesisUtterance(toSay);
     let name = this.state.voice;
@@ -336,8 +349,8 @@ class App extends React.Component {
         sayThis.voice = d
       }
     })
-    sayThis.pitch = 1.2;
-    sayThis.rate = 1;
+    sayThis.pitch = this.state.speakPitch;
+    sayThis.rate = this.state.speakRate;
     this.state.synth.speak(sayThis);
   }
 
@@ -354,8 +367,6 @@ class App extends React.Component {
     this.setState({
       language: 'english',
       status: 'stopped',
-      switch: true,
-      listenStop: false,
       dialogue: [],
       calledOn: false,
       needAcknowledge: true,
@@ -416,6 +427,8 @@ class App extends React.Component {
           speak={ this.speak }
           setAppState={ this.setTheState }
           needAcknowledge={ this.state.needAcknowledge }
+          motorMouth={ this.state.motorMouth }
+          speakFrequency={ this.state.speakFrequency }
         />
       </main>
     );
