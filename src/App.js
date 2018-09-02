@@ -19,6 +19,7 @@ class App extends React.Component {
       listenStop: false,
       dialogue: [],
       calledOn: false,
+      needAcknowledge: true,
       msgBoxStyle: { transform: 'scaleX(0) scaleY(0)' },
       voice: 'Karen',
       userSpeech: undefined,
@@ -131,7 +132,7 @@ class App extends React.Component {
           await this.setTheState('switch', false)
 
         } else {
-          if(this.state.calledOn === true) {
+          if(this.state.calledOn === true || this.state.needAcknowledge === false) {
             let userSpeech = this.processHeard(finalHash)
             this.addMessageToBox('user', userSpeech)
             this.setState({ userSpeech })
@@ -357,6 +358,7 @@ class App extends React.Component {
       listenStop: false,
       dialogue: [],
       calledOn: false,
+      needAcknowledge: true,
       msgBoxStyle: {},
       voice: 'Karen',
       userSpeech: '',
@@ -365,6 +367,7 @@ class App extends React.Component {
 
   render() {
     const buttonClass = this.state.switch ? 'start selected' : 'start';
+
     const messages = this.state.dialogue.map((element, index) => {
       let message;
       if(element.who === 'helios') {
@@ -380,12 +383,22 @@ class App extends React.Component {
       );
     })
 
+    let msgBox;
+    if(this.state.brain === 'dumb' || this.state.brain === 'dumbkorean') {
+      msgBox = this.state.msgBoxStyle;
+    } else if(this.state.brain === 'config') {
+      msgBox = {
+        ...this.state.msgBoxStyle,
+        border: '1px solid red',
+      }
+    }
+
     return (
       <main className="container">
         <h1 className="title">H E L I O S</h1>
         <p className="desc">Home v 0.1.0</p>
         <h1 className="state">STATUS: { this.state.status }</h1>
-        <div className="messages" style={ this.state.msgBoxStyle }>
+        <div className="messages" style={ msgBox }>
           { messages }
         </div>
         <div className="buttoncontainer">
@@ -402,6 +415,7 @@ class App extends React.Component {
           display={ this.addMessageToBox }
           speak={ this.speak }
           setAppState={ this.setTheState }
+          needAcknowledge={ this.state.needAcknowledge }
         />
       </main>
     );

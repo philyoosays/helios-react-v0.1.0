@@ -21,7 +21,7 @@ export default class DumbBrain extends React.Component {
   }
 
   processing(input) {
-    const { display, speak } = this.props;
+    const { display, speak, setAppState } = this.props;
 
     let replyShow;
     let timeObj;
@@ -37,7 +37,9 @@ export default class DumbBrain extends React.Component {
       case 'bring up config mode':
       case 'bring up configuration':
       case 'bring up config':
-        display();
+        display('helios', 'Entering configuration mode');
+        setAppState('brain', 'config')
+        break;
       case 'tell me the time':
       case 'tell me what time it is':
       case 'can you tell me the time':
@@ -88,7 +90,7 @@ export default class DumbBrain extends React.Component {
   }
 
   render() {
-    return(null);
+    return( null );
   }
 }
 

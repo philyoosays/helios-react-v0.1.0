@@ -2,6 +2,7 @@ import React from 'react';
 
 import DumbBrain from './DumbBrain';
 import DumbBrainKorean from './DumbBrainKorean';
+import
 /*
   Brain gets these props
   ======================
@@ -14,6 +15,7 @@ import DumbBrainKorean from './DumbBrainKorean';
   display={ this.addMessageToBox }
   speak={ this.speak }
   setAppState={ this.setTheState }
+  needAcknowledge={ this.state.needAcknowledge }
 */
 
 export default function BrainPort(props) {
@@ -39,6 +41,18 @@ export default function BrainPort(props) {
                 display={ props.display }
                 speak={ props.speak }
                 setAppState={ props.setAppState }
+              />
+  } else if(props.brain === 'config') {
+    toLoad = <DumbBrainConfig
+                ears={ props.ears }
+                mouth={ props.mouth }
+                language={ props.language }
+                shortMemory={ props.shortMemory }
+                input={ props.input }
+                display={ props.display }
+                speak={ props.speak }
+                setAppState={ props.setAppState }
+                needAcknowledge={ props.needAcknowledge }
               />
   }
 
