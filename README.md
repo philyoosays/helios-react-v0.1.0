@@ -23,7 +23,7 @@ The purpose of the Base Component (BC) (App.jsx), is to provide and manage verba
   -Its name  
       When it hears its name, it opens the dialogue box signifying that Helios is now active. The calledOn state is used to represent that acknowledgement is no longer necessary.
 
-  -"_Korean_**"  
+  -"_Korean_"  
       When it hears the word "_korean_", it treats it like hearing its name, as well as setting language state to 'korean'. When the dialogue box opens, it loads the korean SR instance.
 
 ### Stop Button Click
@@ -39,7 +39,9 @@ The purpose of the Base Component (BC) (App.jsx), is to provide and manage verba
 ### Error handling
   When an error is detected in the SR instance, Helios will display the error on the screen.
 
-
+Brain Functional Component
+------
+The purpose of this component is to act as a port for the various logic brains. This component renders nothing. It receives props and methods from the Base Component and passes them along to the currently loaded logic brain. 
 
 
 

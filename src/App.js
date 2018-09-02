@@ -1,8 +1,7 @@
 import React from 'react';
 
-import Brain from './Brain';
+import BrainPort from './BrainPort';
 import { greetings, personalityGreeting } from './lib/greetings';
-import { addMessageToBox, speak } from './Output';
 
 import './App.css';
 
@@ -25,6 +24,10 @@ class App extends React.Component {
       userSpeech: undefined,
       brain: 'dumb'
     }
+
+    this.addMessageToBox = this.addMessageToBox.bind(this);
+    this.setTheState = this.setTheState.bind(this);
+    this.speak = this.speak.bind(this);
   }
 
   componentDidMount() {
@@ -199,7 +202,7 @@ class App extends React.Component {
           } else {
             let toSay = this.selectGreeting();
             this.addMessageToBox(this, 'helios', toSay);
-            speak(this, toSay)
+            this.speak(this, toSay)
           }
 
         }, 1250);
@@ -270,23 +273,6 @@ class App extends React.Component {
     return text;
   }
 
-  speak(toSay, lang) {
-    let voices = this.state.synth.getVoices();
-    let sayThis = new SpeechSynthesisUtterance(toSay);
-    let name = this.state.voice;
-    if(lang !== undefined) {
-      name = 'Yuna'
-    }
-    voices.forEach(d => {
-      if(d.name === name) {
-        sayThis.voice = d
-      }
-    })
-    sayThis.pitch = 1.2;
-    sayThis.rate = 1;
-    this.state.synth.speak(sayThis);
-  }
-
   selectGreeting() {
     let toSay = '';
     let coinFlip = Math.random() > .5 ? true : false;
@@ -318,6 +304,23 @@ class App extends React.Component {
     }
 
     await this.setState( newState );
+  }
+
+  speak(toSay, lang) {
+    let voices = this.state.synth.getVoices();
+    let sayThis = new SpeechSynthesisUtterance(toSay);
+    let name = this.state.voice;
+    if(lang === 'korean') {
+      name = 'Yuna'
+    }
+    voices.forEach(d => {
+      if(d.name === name) {
+        sayThis.voice = d
+      }
+    })
+    sayThis.pitch = 1.2;
+    sayThis.rate = 1;
+    this.state.synth.speak(sayThis);
   }
 
   startListening() {
@@ -371,13 +374,14 @@ class App extends React.Component {
           <button className={ buttonClass } onClick={() => this.setTheState('switch', true)}>START</button>
           <button className="stop" onClick={() => this.setTheState('switch', false)}>STOP</button>
         </div>
-        <Brain
+        <BrainPort
           brain={ this.state.brain }
           ears={ this.state.currentListen }
           mouth={ this.state.synth }
           language={ this.state.language }
           shortMemory={ this.state.dialogue }
           input={ this.state.userSpeech }
+          display={ this.addMessageToBox }
           speak={ this.speak }
           setAppState={ this.setTheState }
         />
