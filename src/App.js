@@ -10,8 +10,6 @@ class App extends React.Component {
     super(props);
     this.state = {
       recognition: undefined,
-      korean: undefined,
-      currentListen: undefined,
       synth: undefined,
       language: 'english',
       status: 'stopped',
@@ -34,7 +32,7 @@ class App extends React.Component {
     this.speak = this.speak.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const SpeechRecognition = window.webkitSpeechRecognition;
     const SpeechGrammarList = window.webkitSpeechGrammarList;
     const SpeechRecognitionEvent = window.webkitSpeechRecognitionEvent;
@@ -43,7 +41,6 @@ class App extends React.Component {
     let SpeechRecognitionList = new SpeechGrammarList();
 
     recognition.continuous = true;
-    recognition.lang = 'en-US';
     recognition.interimResults = false;
     recognition.maxAlternatives = 5;
 
@@ -85,10 +82,12 @@ class App extends React.Component {
     }
 
     recognition.onerror = (event) => {
-      if(event.error !== 'abort') {
+      if(event.error !== 'aborted') {
         this.setState({ status: 'Error' });
         this.addMessageToBox('helios', 'I have detected an error in speech recognition. I will display the details on the screen.');
         this.addMessageToBox('helios', event.error);
+      } else if(this.state.switch === true && this.state.language === 'korean') {
+        // this.startListening();
       }
     }
 
@@ -97,11 +96,15 @@ class App extends React.Component {
       console.log('Self end', this.state.switch)
       if(this.state.switch === true) {
         this.deactivateListenMode();
-        this.state.currentListen.start();
+        this.startListening();
       }
     }
 
     recognition.onresult = async (event) => {
+      console.log('Is Helios Speaking?', this.state.synth.speaking);
+      console.log('Is Helios Speaking?', synth.speaking);
+      console.log('Is Helios Speaking?', this.state.listenStop)
+      console.log('new result')
       let last = event.results.length - 1;
       let resultsObj = event.results[last];
       let resultsHash = {};
@@ -121,15 +124,15 @@ class App extends React.Component {
         finalHash[key.toLowerCase().trim()] = resultsHash[key];
       }
 
-      console.log(finalHash)
+      console.log('finalhash', finalHash)
 
       const hardStop = this.checkStopWord(finalHash);
-      console.log(hardStop)
+      console.log('hardstop', hardStop)
 
       const wasICalled = this.checkName(finalHash);
-      console.log(wasICalled)
+      console.log('was I called?', wasICalled)
 
-      if(!synth.speaking) {
+      if(!this.state.listenStop) {
 
         if(hardStop) {
           console.log('hard stop')
@@ -137,6 +140,7 @@ class App extends React.Component {
           const coinFlip = Math.random() > .5 ? true : false;
           const final = coinFlip ? 'Shutting down.' : 'Signing off.';
           let theSignOff = 'Acknowledging hard stop and performing shut down procedures.'
+          this.stopListening();
           await this.speak(theSignOff);
           setTimeout(() => {
             this.speak(final);
@@ -150,13 +154,16 @@ class App extends React.Component {
 
           } else {
             if(wasICalled) {
-              console.log('activating')
-              if(this.state.language === 'korean') {
-                recognition.abort();
-                this.setState({ currentListen: this.state.korean })
-                setTimeout(() => {
-                  this.state.currentListen.start();
-                }, 1750)
+              console.log('not hardstop, active if called')
+              if(wasICalled === 'korean') {
+                await this.state.recognition.abort();
+                recognition.lang = 'ko-KR';
+                await this.setState({
+                  language: 'korean'
+                })
+                console.log('recog lang', recognition.lang)
+              } else if(wasICalled === true) {
+                recognition.lang = 'en-US';
               }
               this.activateListenMode();
             }
@@ -165,25 +172,26 @@ class App extends React.Component {
 
       } else {
         console.log('Speech catured while I was talking', finalHash)
+        await this.setState({ listenStop: false })
       }
     }
-
-    let korean = Object.assign({}, this.state.recognition)
-    korean.lang = 'ko';
-
-    this.setState({ recognition, korean, synth, currentListen: recognition });
+    console.log('onresult done')
+    await this.setState({ synth, recognition });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  async componentDidUpdate(prevProps, prevState) {
     //////////////////
     // SWITCH
     //////////////////
     if(prevState.switch !== this.state.switch) {
-      console.log('switch', this.state.switch)
+      console.log('switch changed from', prevState.switch, 'to', this.state.switch)
       if(this.state.switch) {
+        console.log('switch is on')
         this.startListening();
       } else {
-        this.stopListening();
+        console.log('switch is off')
+        this.state.recognition.abort();
+        this.deactivateListenMode();
       }
     }
 
@@ -194,22 +202,11 @@ class App extends React.Component {
       let msgBox = document.querySelector('.messages');
       msgBox.scrollTop = msgBox.scrollHeight;
     }
-
-    //////////////////
-    // LANGUAGE
-    //////////////////
-    if(prevState.language !== this.state.language) {
-      if(this.state.language === 'english') {
-        this.setState({ currentListen: this.state.recognition })
-
-      } else if(this.state.language === 'korean') {
-        this.setState({ currentListen: this.state.korean })
-      }
-    }
   }
 
   async activateListenMode() {
-    console.log('starting')
+    console.log('starting activeListenMode')
+    console.log('activeListen lang:', this.state.language)
     setTimeout(async () => {
       await this.setTheState('msgBoxStyle', { transform: 'scaleX(1) scaleY(0)' })
 
@@ -220,10 +217,9 @@ class App extends React.Component {
           await this.setTheState('calledOn', true)
           if(this.state.language === 'korean') {
             this.addMessageToBox('helios', '어떻게 도와 드릴까요?');
-            this.state.currentListen.start();
+            this.speak('어떻게 도와 드릴까요?', 'korean')
           } else {
             let toSay = this.selectGreeting();
-            console.log(typeof toSay)
             this.addMessageToBox('helios', toSay);
             this.speak(toSay)
           }
@@ -239,6 +235,17 @@ class App extends React.Component {
     this.setState({ dialogue });
   }
 
+  async changeLanguage(lang, recog){
+    if(lang === 'korean') {
+      let obj = Object.assign({}, recog)
+      obj.lang = 'ko-KR';
+      await this.setState({
+        language: 'korean'
+      })
+    }
+    return recog;
+  }
+
   checkName(hashObj) {
     const names = [ 'helios', 'chileos', 'chelios', 'korean' ];
     let goodName = false;
@@ -251,7 +258,7 @@ class App extends React.Component {
     }
 
     if(goodName === true && hashObj['korean'] !== undefined) {
-      this.setTheState('language', 'korean')
+      goodName = 'korean'
     }
     console.log('goodName', goodName)
     return goodName;
@@ -282,7 +289,7 @@ class App extends React.Component {
         }, 1000)
       })
     }
-    this.reset();
+    this.resetLanguage();
   }
 
   processHeard(hashObj) {
@@ -337,9 +344,13 @@ class App extends React.Component {
   }
 
   async speak(toSay, lang) {
-    // await this.setState({ listenStop: true })
     let voices = this.state.synth.getVoices();
     let sayThis = new SpeechSynthesisUtterance(toSay);
+
+    sayThis.onend = async (event) => {
+      console.log('Utterance has finished being spoken after ' + event.elapsedTime + ' milliseconds.');
+      await this.setState({ listenStop: true })
+    }
     let name = this.state.voice;
     if(lang === 'korean') {
       name = 'Yuna'
@@ -355,24 +366,47 @@ class App extends React.Component {
   }
 
   startListening() {
-    this.state.currentListen.start();
+    console.log(this.state)
+    this.state.recognition.start();
   }
 
   stopListening() {
     this.reset();
-    this.state.currentListen.abort();
+    if(this.state.recognition) {
+      this.state.recognition.abort();
+    }
   }
 
   reset() {
     this.setState({
       language: 'english',
       status: 'stopped',
+      switch: false,
+      listenStop: false,
       dialogue: [],
       calledOn: false,
-      needAcknowledge: true,
-      msgBoxStyle: {},
+      motorMouth: false,
+      msgBoxStyle: { transform: 'scaleX(0) scaleY(0)' },
       voice: 'Karen',
-      userSpeech: '',
+      userSpeech: undefined,
+      brain: 'dumb',
+      speakPitch: 1.2,
+      speakRate: 1,
+      speakFrequency: 1
+    })
+  }
+
+  resetLanguage() {
+    this.setState({
+      listenStop: false,
+      dialogue: [],
+      calledOn: false,
+      motorMouth: false,
+      voice: 'Karen',
+      brain: 'dumb',
+      speakPitch: 1.2,
+      speakRate: 1,
+      speakFrequency: 1
     })
   }
 
@@ -413,12 +447,12 @@ class App extends React.Component {
           { messages }
         </div>
         <div className="buttoncontainer">
-          <button className={ buttonClass } onClick={() => this.setTheState('switch', true)}>START</button>
-          <button className="stop" onClick={() => this.setTheState('switch', false)}>STOP</button>
+          <button className={ buttonClass } onClick={() => this.setState({switch: true})}>START</button>
+          <button className="stop" onClick={() => this.setState({switch: false})}>STOP</button>
         </div>
         <BrainPort
           brain={ this.state.brain }
-          ears={ this.state.currentListen }
+          ears={ this.state.recognition }
           mouth={ this.state.synth }
           language={ this.state.language }
           shortMemory={ this.state.dialogue }
@@ -429,6 +463,8 @@ class App extends React.Component {
           needAcknowledge={ this.state.needAcknowledge }
           motorMouth={ this.state.motorMouth }
           speakFrequency={ this.state.speakFrequency }
+          speakPitch={ this.state.speakPitch }
+          speakRate={ this.state.speakRate }
         />
       </main>
     );

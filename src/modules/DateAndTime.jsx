@@ -39,7 +39,7 @@ module.exports = {
     let day = new Date();
     const week = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
     return week[day.getDay()]
-  }
+  },
 
   timerGivenNone() {
 

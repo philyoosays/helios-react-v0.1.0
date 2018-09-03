@@ -3,8 +3,6 @@ import React from 'react';
 import { amAble } from './lib/phraseLibrary';
 import DateAndTime from './modules/DateAndTime';
 
-const { currentTime, timerGivenNone } = DateAndTime;
-
 export default class DumbBrain extends React.Component {
   constructor(props) {
     super(props);
@@ -37,6 +35,7 @@ export default class DumbBrain extends React.Component {
 
   async processing(input) {
     const { setAppState, speakFrequency, speak } = this.props;
+    const { currentTime, timerGivenNone } = DateAndTime;
 
     let replyShow;
     let timeObj;
@@ -89,7 +88,6 @@ export default class DumbBrain extends React.Component {
         replyShow = amAble[rand];
         replyShow += ' For how long should I set a timer for?';
         this.output(replyShow)
-
         break;
       //////////////////////
       // Home Utilities
@@ -101,6 +99,7 @@ export default class DumbBrain extends React.Component {
       case 'is she in':
       case 'is she in right now':
       case 'is she currently in':
+      case 'is she currently in right now':
       case 'is she at home':
       case 'is she home':
       case 'is she currently home':
@@ -120,11 +119,11 @@ export default class DumbBrain extends React.Component {
             }
           })
         break;
-      default:
-        replyShow = 'I\'m sorry but I didn\'t catch that. Could you please try again?';
-        this.output(replyShow)
-        speak('I\'m sorry but I didn\'t catch that. Could you please try again?')
-        break;
+      // default:
+      //   replyShow = 'I\'m sorry but I didn\'t catch that. Could you please try again?';
+      //   this.output(replyShow)
+      //   speak('I\'m sorry but I didn\'t catch that. Could you please try again?')
+      //   break;
     }
 
     if(speakFrequency === 2) {

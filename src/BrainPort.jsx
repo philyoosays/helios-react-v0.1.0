@@ -56,6 +56,8 @@ export default function BrainPort(props) {
                 setAppState={ props.setAppState }
                 needAcknowledge={ props.needAcknowledge }
                 speakFrequency={ props.speakFrequency }
+                speakPitch={ props.speakPitch }
+                speakRate={ props.speakRate }
               />
   }
 
