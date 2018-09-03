@@ -31,6 +31,7 @@ export default function BrainPort(props) {
                 speak={ props.speak }
                 setAppState={ props.setAppState }
                 speakFrequency={ props.speakFrequency }
+                instance={ props.instance }
               />
   } else if(props.brain === 'dumb' && props.language === 'korean') {
     toLoad = <DumbBrainKorean
@@ -58,6 +59,7 @@ export default function BrainPort(props) {
                 speakFrequency={ props.speakFrequency }
                 speakPitch={ props.speakPitch }
                 speakRate={ props.speakRate }
+                instance={ props.instance }
               />
   }
 

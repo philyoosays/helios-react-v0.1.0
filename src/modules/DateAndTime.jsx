@@ -43,5 +43,40 @@ module.exports = {
 
   timerGivenNone() {
 
+  },
+
+  setTimer(timeString) {
+    let time;
+    let array = timeString.split(' ');
+    if(array.length === 2) {
+      if(array[1].includes('hour')) {
+        time = parseInt(array[0]) * 360000;
+      } else if(array[1].includes('minute')) {
+        time = parseInt(array[0]) * 60000;
+      } else if(array[1].includes('second')) {
+        time = parseInt(array[0]) * 1000;
+      }
+    }
+
+    return time;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

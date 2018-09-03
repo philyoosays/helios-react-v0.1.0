@@ -45,6 +45,7 @@ class App extends React.Component {
     recognition.maxAlternatives = 5;
 
     var synth = window.speechSynthesis;
+    let timer;
 
     recognition.onstart = () => {
       this.setState({ status: 'Ready' });
@@ -64,6 +65,9 @@ class App extends React.Component {
     recognition.onspeechstart = () => {
       this.setState({ status: 'Detecting Speech...' });
       console.log('Speech Start');
+      // timer = setTimeout(() => {
+      //   this.state.recognition.stop()
+      // }, 8000)
     }
 
     recognition.onaudioend = () => {
@@ -86,17 +90,19 @@ class App extends React.Component {
         this.setState({ status: 'Error' });
         this.addMessageToBox('helios', 'I have detected an error in speech recognition. I will display the details on the screen.');
         this.addMessageToBox('helios', event.error);
-      } else if(this.state.switch === true && this.state.language === 'korean') {
-        // this.startListening();
+      } else if(this.state.switch === true && this.state.language === 'english') {
+        this.startListening();
       }
     }
 
-    recognition.onend = () => {
+    recognition.onend = async () => {
       this.setState({ status: 'Self end' });
       console.log('Self end', this.state.switch)
       if(this.state.switch === true) {
-        this.deactivateListenMode();
-        this.startListening();
+        await this.deactivateListenMode();
+        await this.reset()
+        await this.setState({ switch: true })
+        await this.startListening();
       }
     }
 
@@ -129,6 +135,7 @@ class App extends React.Component {
       const hardStop = this.checkStopWord(finalHash);
       console.log('hardstop', hardStop)
 
+      console.log(this.state.calledOn)
       const wasICalled = this.checkName(finalHash);
       console.log('was I called?', wasICalled)
 
@@ -202,6 +209,14 @@ class App extends React.Component {
       let msgBox = document.querySelector('.messages');
       msgBox.scrollTop = msgBox.scrollHeight;
     }
+
+    //////////////////
+    // CALLED ON
+    //////////////////
+    if(prevState.calledOn !== this.state.calledOn) {
+      console.log(prevState.calledOn, 'v', this.state.calledOn);
+      console.log(this)
+    }
   }
 
   async activateListenMode() {
@@ -249,16 +264,20 @@ class App extends React.Component {
   checkName(hashObj) {
     const names = [ 'helios', 'chileos', 'chelios', 'korean' ];
     let goodName = false;
-    for(let i = 0; i < names.length; i++) {
-      for(let key in hashObj) {
-        if(key.includes(names[i])) {
-          goodName = true;
+    if(!this.state.calledOn) {
+      for(let i = 0; i < names.length; i++) {
+        for(let key in hashObj) {
+          if(key.includes(names[i])) {
+            goodName = true;
+          }
         }
       }
-    }
 
-    if(goodName === true && hashObj['korean'] !== undefined) {
-      goodName = 'korean'
+      if(goodName === true && hashObj['korean'] !== undefined) {
+        goodName = 'korean'
+      }
+    } else {
+      goodName = true;
     }
     console.log('goodName', goodName)
     return goodName;
@@ -280,6 +299,7 @@ class App extends React.Component {
   deactivateListenMode() {
     if(this.state.msgBoxStyle.transform === 'scaleX(1) scaleY(1)') {
       console.log('closing down');
+      this.setState({ status: 'Ready...' })
       setTimeout(async () => {
         await this.setTheState('msgBoxStyle', { transform: 'scaleX(1) scaleY(0.1)' })
 
@@ -347,9 +367,9 @@ class App extends React.Component {
     let voices = this.state.synth.getVoices();
     let sayThis = new SpeechSynthesisUtterance(toSay);
 
+    await this.setState({ listenStop: true })
     sayThis.onend = async (event) => {
       console.log('Utterance has finished being spoken after ' + event.elapsedTime + ' milliseconds.');
-      await this.setState({ listenStop: true })
     }
     let name = this.state.voice;
     if(lang === 'korean') {
@@ -363,10 +383,12 @@ class App extends React.Component {
     sayThis.pitch = this.state.speakPitch;
     sayThis.rate = this.state.speakRate;
     this.state.synth.speak(sayThis);
+    if(this.state.synth.speaking) {
+      this.setState({ listenStop: true })
+    }
   }
 
   startListening() {
-    console.log(this.state)
     this.state.recognition.start();
   }
 
@@ -400,7 +422,6 @@ class App extends React.Component {
     this.setState({
       listenStop: false,
       dialogue: [],
-      calledOn: false,
       motorMouth: false,
       voice: 'Karen',
       brain: 'dumb',
@@ -460,6 +481,7 @@ class App extends React.Component {
           display={ this.addMessageToBox }
           speak={ this.speak }
           setAppState={ this.setTheState }
+          instance={ this }
           needAcknowledge={ this.state.needAcknowledge }
           motorMouth={ this.state.motorMouth }
           speakFrequency={ this.state.speakFrequency }
