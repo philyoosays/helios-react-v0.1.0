@@ -11,7 +11,7 @@ class App extends React.Component {
     this.state = {
       recognition: undefined,
       synth: undefined,
-      language: 'english',
+      language: 'korean',
       status: 'stopped',
       switch: false,
       listenStop: false,
@@ -43,6 +43,7 @@ class App extends React.Component {
     recognition.continuous = true;
     recognition.interimResults = false;
     recognition.maxAlternatives = 5;
+    recognition.lang = 'ko-KR'
 
     var synth = window.speechSynthesis;
     let timer;
@@ -95,16 +96,16 @@ class App extends React.Component {
       }
     }
 
-    recognition.onend = async () => {
-      this.setState({ status: 'Self end' });
-      console.log('Self end', this.state.switch)
-      if(this.state.switch === true) {
-        await this.deactivateListenMode();
-        await this.reset()
-        await this.setState({ switch: true })
-        await this.startListening();
-      }
-    }
+    // recognition.onend = async () => {
+    //   this.setState({ status: 'Self end' });
+    //   console.log('Self end', this.state.switch)
+    //   if(this.state.switch === true) {
+    //     await this.deactivateListenMode();
+    //     await this.reset()
+    //     await this.setState({ switch: true })
+    //     await this.startListening();
+    //   }
+    // }
 
     recognition.onresult = async (event) => {
       console.log('Is Helios Speaking?', this.state.synth.speaking);
@@ -139,7 +140,7 @@ class App extends React.Component {
       const wasICalled = this.checkName(finalHash);
       console.log('was I called?', wasICalled)
 
-      if(!this.state.listenStop) {
+      // if(!this.state.listenStop) {
 
         if(hardStop) {
           console.log('hard stop')
@@ -162,25 +163,26 @@ class App extends React.Component {
           } else {
             if(wasICalled) {
               console.log('not hardstop, active if called')
-              if(wasICalled === 'korean') {
-                await this.state.recognition.abort();
-                recognition.lang = 'ko-KR';
-                await this.setState({
-                  language: 'korean'
-                })
-                console.log('recog lang', recognition.lang)
-              } else if(wasICalled === true) {
-                recognition.lang = 'en-US';
-              }
+              // if(wasICalled === 'korean') {
+              //   await this.state.recognition.abort();
+              //   await this.stopListening()
+              //   recognition.lang = 'ko-KR';
+              //   await this.setState({
+              //     language: 'korean'
+              //   })
+              //   console.log('recog lang', recognition.lang)
+              // if(wasICalled === true || wasICalled === 'korean') {
+              //   recognition.lang = 'ko-KR';
+              // }
               this.activateListenMode();
             }
           }
         }
 
-      } else {
-        console.log('Speech catured while I was talking', finalHash)
-        await this.setState({ listenStop: false })
-      }
+      // } else {
+      //   console.log('Speech catured while I was talking', finalHash)
+      //   await this.setState({ listenStop: false })
+      // }
     }
     console.log('onresult done')
     await this.setState({ synth, recognition });
@@ -234,9 +236,9 @@ class App extends React.Component {
             this.addMessageToBox('helios', '어떻게 도와 드릴까요?');
             this.speak('어떻게 도와 드릴까요?', 'korean')
           } else {
-            let toSay = this.selectGreeting();
-            this.addMessageToBox('helios', toSay);
-            this.speak(toSay)
+            // let toSay = this.selectGreeting();
+            // this.addMessageToBox('helios', toSay);
+            // this.speak(toSay)
           }
 
         }, 1250);
@@ -393,7 +395,7 @@ class App extends React.Component {
   }
 
   stopListening() {
-    this.reset();
+    this.resetLanguage();
     if(this.state.recognition) {
       this.state.recognition.abort();
     }
